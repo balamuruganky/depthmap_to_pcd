@@ -19,6 +19,7 @@ include_directories(
     $ENV{OPENNI2_INCLUDE}
     ${OpenCV_INCLUDE_DIRS}
     /usr/include
+    /usr/include/libusb-1.0/
     ${CMAKE_HOME_DIRECTORY}/include
     )
 
@@ -34,17 +35,20 @@ link_libraries(
     -lpthread
     -lOpenNI2
     -lboost_system
+    -lfreenect
     ${PCL_LIBRARY_DIRS}
+    ${FREENECT_LIBRARIES}
     )
 
 add_executable(
     depthmap_to_pcd
-    src/OpenCVUtils.cpp
-    src/DepthCameraReader.cpp
+    src/KinectV1Sensor.cpp
     src/OpenNIDepthSensor.cpp
+    src/DepthCameraReader.cpp
     src/Utils.cpp
+    src/OpenCVUtils.cpp
     src/PCLUtils.cpp
     src/main.cpp
     )
 
-target_link_libraries(depthmap_to_pcd ${PCL_LIBRARIES} ${OpenCV_LIBS})
+target_link_libraries(depthmap_to_pcd ${PCL_LIBRARIES} ${OpenCV_LIBS} ${FREENECT_LIBRARIES})

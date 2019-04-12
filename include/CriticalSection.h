@@ -14,6 +14,9 @@ class CriticalSection {
 		void Unlock() {
 			pthread_mutex_unlock( &_Mutex );
 		}
+		pthread_mutex_t GetObject() {
+			return _Mutex;
+		}
 	private:
 		pthread_mutex_t _Mutex;
 };

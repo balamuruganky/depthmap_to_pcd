@@ -21,6 +21,7 @@ typedef struct {
 enum CameraParametersType {
 	CAMERA_FOV_PARAMETERS,
 	CAMERA_INTRINSIC_PARAMETERS,
+	CAMERA_KINECTV1_PARAMETERS,
 	// Invalid parameter
 	CAMERA_PARAMETER_INVALID
 };
@@ -45,5 +46,10 @@ typedef struct {
 	float Cx;
 	float Cy;
 } IntrinsicParameters;
+
+typedef struct {
+	float RefPixelSize;
+	float RefDistance;
+}KinectV1Parameters;
 
 #endif
