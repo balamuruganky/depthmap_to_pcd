@@ -43,6 +43,10 @@ void DepthCameraReader::Run() {
 				PCLUtils oPCLUtils(	_pDepthBufferDimension, _pDepthSensorBuilder->GetCameraParameters()->GetIntrinsicParametersInstance(), 
 									_pDepthBuffer, _pColorBuffer);
 				oPCLUtils.GeneratePCDFileUsingIntrinsicParams();
+			} else if (_pDepthSensorBuilder->GetCameraParameters()->GetCameraParameterType() == CAMERA_KINECTV1_PARAMETERS) {
+				PCLUtils oPCLUtils(	_pDepthBufferDimension, _pDepthSensorBuilder->GetCameraParameters()->GetKinectV1ParametersInstance(), 
+									_pDepthBuffer, _pColorBuffer);
+				oPCLUtils.GeneratePCDFileUsingKinectV1Parameters();
 			} else {
 				printf ("ERROR : Invalid Camera parameters. Unable to create PCD file.\n");
 			}

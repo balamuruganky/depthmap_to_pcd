@@ -4,6 +4,8 @@
 #include <libfreenect.hpp>
 #include <libfreenect.h>
 #include <libfreenect_registration.h>
+#include <vector>
+using namespace std;
 
 #include "Common.h"
 #include "IDepthSensorBuilder.h"
@@ -12,24 +14,13 @@
 #include "ThreadSyncSemaphore.h"
 #include "Condition.h"
 
-typedef uint16_t freenect_depth;
-typedef uint8_t freenect_packed_depth;
-typedef uint8_t freenect_pixel;
-
-#define FREENECT_FRAME_W 640
-#define FREENECT_FRAME_H 480
-#define FREENECT_FRAME_PIX (FREENECT_FRAME_H*FREENECT_FRAME_W)
-#define FREENECT_RGB_SIZE (FREENECT_FRAME_PIX*3)
-#define FREENECT_DEPTH_SIZE (FREENECT_FRAME_PIX*sizeof(freenect_depth))
-#define FREENECT_PACKED_DEPTH_11_SIZE 422400
-
 class KinectV1SensorHelper : public Freenect::FreenectDevice {
 	public:
 		KinectV1SensorHelper(freenect_context *_ctx, int _index);
 		~KinectV1SensorHelper();
 
-		freenect_pixel* 	_pRGB;
-		freenect_depth* 	_pDepth;
+		std::vector<uint8_t> 	_oRGB;
+		std::vector<uint16_t> 	_oDepth;
 
 		CriticalSection 	GetCriticalSection() 							{ return _oCS; 									}
 		Condition  			GetCondition() 		 							{ return _oCondition; 							}
@@ -39,8 +30,8 @@ class KinectV1SensorHelper : public Freenect::FreenectDevice {
 		void 				SetDepthFrameReceived(bool bDepthFrameReceived) { _bDepthFrameReceived = bDepthFrameReceived; 	}
 
 	private:
-		void DepthCallback(freenect_depth* depth, uint32_t timestamp);
-		void RGBCallback(freenect_pixel* rgb, uint32_t timestamp);
+		void VideoCallback(void* _rgb, uint32_t timestamp);
+		void DepthCallback(void* _depth, uint32_t timestamp);
 
 		CriticalSection		_oCS;
 		Condition			_oCondition;
@@ -64,15 +55,18 @@ class KinectV1Sensor: public IDepthSensorBuilder, public Thread {
 
 	private:
 		void  					Run();
-		int 					SetCameraParams();
-		void 					SetDepthFrameDimension(int16_t width, int16_t height);
-		void 					SetColorFrameDimension(int16_t width, int16_t height);
-		KinectV1SensorHelper*	_pDevice;
+		void					SetCameraParameters();
+		void 					SetDepthFrameDimension();
+		void 					SetColorFrameDimension();
+		KinectV1SensorHelper*	_pDeviceHandle;
+		freenect_device*		_pDevice;
+		Freenect::Freenect 		_oFreenect;
 		CameraParameters*		_pCameraParams;
 		KinectV1Parameters*		_pKinectV1Params;
 		FrameDimension			_oDepthFrameDimension;
 		FrameDimension			_oColorFrameDimension;
 		ThreadSyncSemaphore 	_oThreadSemaphore;
+		ColorBuffer*			_pColorBuffer;
 
 		freenect_frame_mode 	_oDepthFrameMode;
 		freenect_frame_mode 	_oVideoFrameMode;
