@@ -48,7 +48,6 @@ add_executable(
     src/Utils.cpp
     src/OpenCVUtils.cpp
     src/PCLUtils.cpp
-    src/main.cpp
     )
 
 target_link_libraries(depthmap_to_pcd ${PCL_LIBRARIES} ${OpenCV_LIBS} ${FREENECT_LIBRARIES})
