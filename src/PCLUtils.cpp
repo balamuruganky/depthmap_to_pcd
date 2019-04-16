@@ -55,21 +55,23 @@ void PCLUtils::GeneratePCDFileUsingKinectV1Parameters() {
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr pointcloud (new pcl::PointCloud <pcl::PointXYZRGB>);
 	int DepthFrameWidth = _pDepthFrameDimension->Width;
 	int DepthFrameHeight = _pDepthFrameDimension->Height;
-	float RefPixSize = _pKinectV1Parameters->RefPixelSize;
-	float RefDistance = _pKinectV1Parameters->RefDistance;
+	double RefPixSize = (double)_pKinectV1Parameters->RefPixelSize;
+	double RefDistance = (double)_pKinectV1Parameters->RefDistance;
+	double currDepth = 0.0, ptx = 0.0, pty = 0.0;
 	pointcloud->width = DepthFrameWidth;
 	pointcloud->height = DepthFrameHeight;
 	pointcloud->points.resize (DepthFrameHeight * DepthFrameWidth);
-
+	
 	unsigned depth_idx = 0;
-	for (unsigned v = 0; v < DepthFrameHeight; ++v) {
-		for (unsigned u = 0; u < DepthFrameWidth; ++u, ++depth_idx)  {
+	for (unsigned v = 0; v < (int)DepthFrameHeight; ++v) {
+		for (unsigned u = 0; u < (int)DepthFrameWidth; ++u, ++depth_idx)  {
 			pcl::PointXYZRGB& pt = pointcloud->points[depth_idx];
-			pt.z = _pDepthBuf[depth_idx] * MM_TO_METERS;
-		    if (pt.z != 0) {
-				double factor = 2 * RefPixSize * pt.z / RefDistance;
-				pt.x = (double)(u - DepthFrameWidth / 2) * factor;
-				pt.y = (double)(v - DepthFrameHeight / 2) * factor;
+			currDepth = _pDepthBuf[depth_idx];
+		    if (currDepth != 0) {
+				double factor = 2 * RefPixSize * currDepth / RefDistance;
+				pt.x = (((int)u - (int)(DepthFrameWidth / 2)) * factor) * MM_TO_METERS;
+				pt.y = (((int)v - (int)(DepthFrameHeight /2)) * factor) * MM_TO_METERS;
+				pt.z = (currDepth * MM_TO_METERS);
 			} else {
 		    	pt.x = pt.y = pt.z = std::numeric_limits<float>::quiet_NaN();
 		    }

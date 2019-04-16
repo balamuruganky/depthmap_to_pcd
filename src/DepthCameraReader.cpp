@@ -8,6 +8,7 @@
 #include "ThreadSyncSemaphore.h"
 #include "DepthCameraReader.h"
 #include "OpenNIDepthSensor.h"
+#include "KinectV1Sensor.h"
 #include "Utils.h"
 
 DepthCameraReader::DepthCameraReader(IDepthSensorBuilder* pDepthSensorBuilder) : 
@@ -32,6 +33,15 @@ void DepthCameraReader::Run() {
 			_pColorBuffer = _pDepthSensorBuilder->GetColorBuffer();
 			_pDepthBufferDimension = _pDepthSensorBuilder->GetDepthFrameDimension();
 			_pColorBufferDimension = _pDepthSensorBuilder->GetColorFrameDimension();
+			
+			if (_pDepthBuffer == NULL) {
+				printf ("Depth buffer is NULL\n");
+				break;
+			}
+			if (_pColorBuffer == NULL) {
+				printf ("Color buffer is NULL\n");
+				break;
+			}
 			
 			OpenCVUtils oOpenCVUtils(_pDepthBufferDimension, _pDepthBuffer, _pColorBufferDimension, _pColorBuffer);
 			
@@ -58,10 +68,14 @@ void DepthCameraReader::Run() {
 }
 
 int main(int argc, char** argv) {
+/*
 	OpenNIDepthSensor oOpenNIDepthSensor;
-	DepthCameraReader oDepthCameraReader(&oOpenNIDepthSensor);
-
-	oDepthCameraReader.StartThread();
+	DepthCameraReader oDepthCameraReaderOpenNI(&oOpenNIDepthSensor);
+	oDepthCameraReaderOpenNI.StartThread();
+*/
+	KinectV1Sensor oKinectV1Sensor;
+	DepthCameraReader oDepthCameraReaderKinectV1Sensor(&oKinectV1Sensor);
+	oDepthCameraReaderKinectV1Sensor.StartThread();
 
 	//
 	// Call blocking API here...
@@ -69,12 +83,18 @@ int main(int argc, char** argv) {
 	char c = getchar();
 
 	printf("Thread clean up begins...\n");
-
+/*
 	oOpenNIDepthSensor.StopThread();
-	oDepthCameraReader.StopThread();
+	oDepthCameraReaderOpenNI.StopThread();
 
 	oOpenNIDepthSensor.WaitForThreadToExit();
-	oDepthCameraReader.WaitForThreadToExit();
+	oDepthCameraReaderOpenNI.WaitForThreadToExit();
+*/	
+	oKinectV1Sensor.StopThread();
+	oDepthCameraReaderKinectV1Sensor.StopThread();
+
+	oKinectV1Sensor.WaitForThreadToExit();
+	oDepthCameraReaderKinectV1Sensor.WaitForThreadToExit();
 
 	printf("Thread clean up ends...\n");
 

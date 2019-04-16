@@ -1,7 +1,7 @@
 #include "KinectV1Sensor.h"
 
 KinectV1SensorHelper::KinectV1SensorHelper(freenect_context *_ctx, int _index)
-	 		: Freenect::FreenectDevice(_ctx, _index) {
+	 		: Freenect::FreenectDevice(_ctx, _index), _bDepthFrameReceived(false), _bColorFrameReceived(false) {
 	 _oCondition.SetMutex(_oCS.GetObject());
 	 _oRGB.clear();
 	 _oDepth.clear();
@@ -15,7 +15,7 @@ void KinectV1SensorHelper::DepthCallback(void* _depth, uint32_t timestamp) {
 	_oCS.Lock();
 	_oDepth.clear();
 	uint16_t* depth = static_cast<uint16_t*>(_depth);
-	for (size_t i = 0; i < getDepthBufferSize(); i++) {
+	for (size_t i = 0; i < (getDepthBufferSize() / 2); i++) {
 		_oDepth.push_back(depth[i]);
 	}
 	_bDepthFrameReceived = true;
@@ -25,8 +25,12 @@ void KinectV1SensorHelper::DepthCallback(void* _depth, uint32_t timestamp) {
 
 void KinectV1SensorHelper::VideoCallback(void* _rgb, uint32_t timestamp) {
 	_oCS.Lock();
+	_oRGB.clear();
 	uint8_t* rgb = static_cast<uint8_t*>(_rgb);
-	std::copy(rgb, rgb+getVideoBufferSize(), _oRGB.begin());
+	//std::copy(rgb, rgb+getVideoBufferSize(), _oRGB.begin());
+	for (size_t i = 0; i < getVideoBufferSize(); i++) {
+		_oRGB.push_back(rgb[i]);
+	}
 	_bColorFrameReceived = true;
 	_oCondition.ConditionalSignal();
 	_oCS.Unlock();
@@ -47,7 +51,7 @@ KinectV1Sensor::KinectV1Sensor() : _pCameraParams(NULL), _pKinectV1Params(NULL),
 	SetDepthFrameDimension();
 	SetColorFrameDimension();
 
-	_pColorBuffer = new ColorBuffer[_oDepthFrameDimension.Width * _oDepthFrameDimension.Height];
+	_pColorBuffer = new ColorBuffer[(int)_oColorFrameDimension.Width * (int)_oColorFrameDimension.Height];
 }
 
 KinectV1Sensor::~KinectV1Sensor() {
@@ -59,7 +63,6 @@ KinectV1Sensor::~KinectV1Sensor() {
 int8_t KinectV1Sensor::InitDepthSensor() {
 	_pDeviceHandle->startVideo();
 	_pDeviceHandle->startDepth();
-
 	StartThread();
 }
 
@@ -120,7 +123,7 @@ ColorBuffer* KinectV1Sensor::GetColorBuffer() {
 	uint8_t* pRGB = _pDeviceHandle->_oRGB.data();
 	for (size_t v = 0 ; v < _oColorFrameDimension.Height; v++) {
 		for ( size_t u = 0 ; u < _oColorFrameDimension.Width ; u++, i++) {
-			_pColorBuffer[i].Red 	= pRGB[i*3];
+			_pColorBuffer[i].Red 	= pRGB[(i*3)];
 			_pColorBuffer[i].Green 	= pRGB[(i*3)+1];
 			_pColorBuffer[i].Blue 	= pRGB[(i*3)+2];
 		}
@@ -133,17 +136,26 @@ int32_t	KinectV1Sensor::WaitForBufferStreams(uint16_t TimeOutInSeconds) {
 }
 
 void KinectV1Sensor::Run() {
-	_pDeviceHandle->GetCriticalSection().Lock();
-	while (!_pDeviceHandle->IsColorFrameReceived() && !_pDeviceHandle->IsDepthFrameReceived())
-	    _pDeviceHandle->GetCondition().ConditionalWait();
+	if (_pDeviceHandle != NULL) {
+		bool isDepthAvailable = false, isRGBAvailable = false;
+		_pDeviceHandle->GetCriticalSection().Lock();
+		while (!_pDeviceHandle->IsColorFrameReceived() && !_pDeviceHandle->IsDepthFrameReceived())
+		    _pDeviceHandle->GetCondition().ConditionalWait();
 
-	if (_pDeviceHandle->IsColorFrameReceived()) {
-	    _pDeviceHandle->SetColorFrameReceived(false);
-	}
+		if (_pDeviceHandle->IsColorFrameReceived()) {
+		    _pDeviceHandle->SetColorFrameReceived(false);
+		    isRGBAvailable = true;
+		}
 
-	if (_pDeviceHandle->IsDepthFrameReceived()) {
-	    _pDeviceHandle->SetDepthFrameReceived(false);
+		if (_pDeviceHandle->IsDepthFrameReceived()) {
+		    _pDeviceHandle->SetDepthFrameReceived(false);
+		    isDepthAvailable = true;
+		}
+		if (isDepthAvailable && isRGBAvailable) {
+			_oThreadSemaphore.SemaphorePost();
+			isDepthAvailable = isRGBAvailable = false;
+		}
+		
+		_pDeviceHandle->GetCriticalSection().Unlock();
 	}
-	_oThreadSemaphore.SemaphorePost();
-	_pDeviceHandle->GetCriticalSection().Unlock();
 }
