@@ -80,6 +80,7 @@ int main(int argc, char** argv) {
 	//
 	// Call blocking API here...
 	//
+	printf ("Press any key to quit the application...\n");
 	char c = getchar();
 
 	printf("Thread clean up begins...\n");
