@@ -32,6 +32,16 @@ typedef struct {
 } FrameDimension;
 
 typedef struct {
+	DepthBuffer* 	pDepthBuf;
+	FrameDimension*	pFrameDim;
+} DepthBufferInfo;
+
+typedef struct {
+	ColorBuffer* 	pColorBuf;
+	FrameDimension*	pFrameDim;
+} ColorBufferInfo;
+
+typedef struct {
 	float DepthHorizontalFOV;
 	float DepthVerticalFOV;
 	float ColorHorizontalFOV;
@@ -50,6 +60,6 @@ typedef struct {
 typedef struct {
 	float RefPixelSize;
 	float RefDistance;
-}KinectV1Parameters;
+} KinectV1Parameters;
 
 #endif

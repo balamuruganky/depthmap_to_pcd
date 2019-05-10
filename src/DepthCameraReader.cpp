@@ -12,7 +12,9 @@
 #include "Utils.h"
 
 DepthCameraReader::DepthCameraReader(IDepthSensorBuilder* pDepthSensorBuilder) : 
-	_pDepthSensorBuilder(NULL), _pDepthBuffer(NULL), _pColorBuffer(NULL), _pDepthBufferDimension(NULL), _pColorBufferDimension(NULL) {
+	_pDepthSensorBuilder(NULL) {
+	_oDepthBufferInfo.pDepthBuf = NULL;
+	_oColorBufferInfo.pColorBuf = NULL;
 	_pDepthSensorBuilder = pDepthSensorBuilder;
 
 	if (NULL != _pDepthSensorBuilder) {
@@ -29,38 +31,36 @@ void DepthCameraReader::Run() {
 		_pDepthSensorBuilder->WaitForBufferStreams(5);
 		{
 			printf ("*** Depth and Color buffer is available ***\n");
-			_pDepthBuffer = _pDepthSensorBuilder->GetDepthBuffer();
-			_pColorBuffer = _pDepthSensorBuilder->GetColorBuffer();
-			_pDepthBufferDimension = _pDepthSensorBuilder->GetDepthFrameDimension();
-			_pColorBufferDimension = _pDepthSensorBuilder->GetColorFrameDimension();
+			_oDepthBufferInfo.pDepthBuf = _pDepthSensorBuilder->GetDepthBuffer();
+			_oColorBufferInfo.pColorBuf = _pDepthSensorBuilder->GetColorBuffer();
+			_oDepthBufferInfo.pFrameDim = _pDepthSensorBuilder->GetDepthFrameDimension();
+			_oColorBufferInfo.pFrameDim = _pDepthSensorBuilder->GetColorFrameDimension();
 			
-			if (_pDepthBuffer == NULL) {
+			if (_oDepthBufferInfo.pDepthBuf == NULL) {
 				printf ("Depth buffer is NULL\n");
 				break;
 			}
-			if (_pColorBuffer == NULL) {
+			if (_oColorBufferInfo.pColorBuf == NULL) {
 				printf ("Color buffer is NULL\n");
 				break;
 			}
-			
-			OpenCVUtils oOpenCVUtils(_pDepthBufferDimension, _pDepthBuffer, _pColorBufferDimension, _pColorBuffer);
-			
+
+			OpenCVUtils oOpenCVUtils(&_oDepthBufferInfo, &_oColorBufferInfo);
 			if (_pDepthSensorBuilder->GetCameraParameters()->GetCameraParameterType() == CAMERA_FOV_PARAMETERS) {
-				PCLUtils oPCLUtils(	_pDepthBufferDimension, _pDepthSensorBuilder->GetCameraParameters()->GetFovParametersInstance(), 
-									_pDepthBuffer, _pColorBuffer);
+				PCLUtils oPCLUtils(	_oDepthBufferInfo.pFrameDim, _pDepthSensorBuilder->GetCameraParameters()->GetFovParametersInstance(), 
+									_oDepthBufferInfo.pDepthBuf, _oColorBufferInfo.pColorBuf);
 				oPCLUtils.GeneratePCDFileUsingFoVParams();
 			} else if (_pDepthSensorBuilder->GetCameraParameters()->GetCameraParameterType() == CAMERA_INTRINSIC_PARAMETERS) {
-				PCLUtils oPCLUtils(	_pDepthBufferDimension, _pDepthSensorBuilder->GetCameraParameters()->GetIntrinsicParametersInstance(), 
-									_pDepthBuffer, _pColorBuffer);
+				PCLUtils oPCLUtils(	_oDepthBufferInfo.pFrameDim, _pDepthSensorBuilder->GetCameraParameters()->GetIntrinsicParametersInstance(), 
+									_oDepthBufferInfo.pDepthBuf, _oColorBufferInfo.pColorBuf);
 				oPCLUtils.GeneratePCDFileUsingIntrinsicParams();
 			} else if (_pDepthSensorBuilder->GetCameraParameters()->GetCameraParameterType() == CAMERA_KINECTV1_PARAMETERS) {
-				PCLUtils oPCLUtils(	_pDepthBufferDimension, _pDepthSensorBuilder->GetCameraParameters()->GetKinectV1ParametersInstance(), 
-									_pDepthBuffer, _pColorBuffer);
+				PCLUtils oPCLUtils(	_oDepthBufferInfo.pFrameDim, _pDepthSensorBuilder->GetCameraParameters()->GetKinectV1ParametersInstance(), 
+									_oDepthBufferInfo.pDepthBuf, _oColorBufferInfo.pColorBuf);
 				oPCLUtils.GeneratePCDFileUsingKinectV1Parameters();
 			} else {
 				printf ("ERROR : Invalid Camera parameters. Unable to create PCD file.\n");
 			}
-			
 			oOpenCVUtils.StoreDepthBufferAsImage(Utils::PrepareUniqueFileName("png", "png"));
 			oOpenCVUtils.StoreColorBufferAsImage(Utils::PrepareUniqueFileName("jpg", "jpg"));
 		}

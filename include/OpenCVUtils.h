@@ -6,20 +6,18 @@
 class OpenCVUtils {
 	public:
 		~OpenCVUtils();
-		OpenCVUtils(FrameDimension* pDepthFrameDimension, DepthBuffer* pDepthBuf, FrameDimension* pColorFrameDimension = NULL, ColorBuffer* pColorBuf = NULL);
+		OpenCVUtils(DepthBufferInfo *pDepthBufInfo, ColorBufferInfo *pColorBufInfo);
 		void 			ShowDepthBufferAsImage();
 		void 			StoreDepthBufferAsImage(char* FileNameWithPath);
 		void 			ShowColorBufferAsImage();
 		void 			StoreColorBufferAsImage(char* FileNameWithPath);
-		ColorBuffer* 	ConvertColorBufferFromRGBtoBGR(ColorBuffer* pColorBuf = NULL);
+		ColorBuffer* 	ConvertColorBufferFromRGBtoBGR(ColorBufferInfo* ColorBufferInfo = NULL);
 
 	private:
-		FrameDimension* _pDepthFrameDimension;
-		DepthBuffer* 	_pDepthBuf;
-		FrameDimension* _pColorFrameDimension;
-		ColorBuffer* 	_pColorBuf;
-		ColorBuffer*	_pColorBGRBuf;
-		bool 			IsColorBufferAvailable() {	return ((NULL != _pColorBuf && NULL !=  _pColorFrameDimension) ? true : false);	}
+		DepthBufferInfo* 	_pDepthBufInfo;
+		ColorBufferInfo* 	_pColorBufInfo;
+		ColorBuffer*		_pColorBGRBuf;
+		bool 			IsColorBufferAvailable() {	return ((NULL != _pColorBufInfo) ? true : false);	}
 		void			StoreOrShowDepthBuffer(char* FileNameWithPath);
 		void			StoreOrShowColorBuffer(char* FileNameWithPath);
 };

@@ -83,8 +83,8 @@ void KinectV1Sensor::SetDepthFrameDimension() {
 
 	oDepthFrameMode = freenect_get_current_depth_mode (_pDevice);
 
-	_oDepthFrameDimension.Width 	= (float)oDepthFrameMode.width;
-	_oDepthFrameDimension.Height 	= (float)oDepthFrameMode.height;
+	_oDepthFrameDimension.Width 	= (int)oDepthFrameMode.width;
+	_oDepthFrameDimension.Height 	= (int)oDepthFrameMode.height;
 }
 
 FrameDimension* KinectV1Sensor::GetColorFrameDimension() {
@@ -99,8 +99,8 @@ void KinectV1Sensor::SetColorFrameDimension() {
 
 	oVideoFrameMode = freenect_get_current_video_mode (_pDevice);
 
-	_oColorFrameDimension.Width 	= (float)oVideoFrameMode.width;
-	_oColorFrameDimension.Height 	= (float)oVideoFrameMode.height;
+	_oColorFrameDimension.Width 	= (int)oVideoFrameMode.width;
+	_oColorFrameDimension.Height 	= (int)oVideoFrameMode.height;
 }
 
 CameraParameters* KinectV1Sensor::GetCameraParameters() {

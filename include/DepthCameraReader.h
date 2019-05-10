@@ -1,6 +1,7 @@
 #ifndef DEPTH_CAMERA_READER_H
 #define DEPTH_CAMERA_READER_H
 
+#include "Common.h"
 #include "IDepthSensorBuilder.h"
 #include "Thread.h"
 
@@ -12,10 +13,10 @@ class DepthCameraReader : public Thread {
 	private:
 		IDepthSensorBuilder* 	_pDepthSensorBuilder;
 
-		DepthBuffer*			_pDepthBuffer;
-		ColorBuffer*			_pColorBuffer;
-		FrameDimension*			_pDepthBufferDimension;
-		FrameDimension*			_pColorBufferDimension;
+		DepthBufferInfo		_oDepthBufferInfo;
+		ColorBufferInfo		_oColorBufferInfo;
+		//FrameDimension*			_pDepthBufferDimension;
+		//FrameDimension*			_pColorBufferDimension;
 
 		void 					Run();
 };

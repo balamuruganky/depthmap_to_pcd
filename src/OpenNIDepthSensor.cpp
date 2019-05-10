@@ -58,8 +58,8 @@ FrameDimension* OpenNIDepthSensor::GetDepthFrameDimension() {
 
 void OpenNIDepthSensor::SetDepthFrameDimension() {
 	if (depth_frame_ != NULL) {
-		_oDepthFrameDimension.Width 	= depth_frame_->getWidth();
-		_oDepthFrameDimension.Height 	= depth_frame_->getHeight();
+		_oDepthFrameDimension.Width 	= (int)depth_frame_->getWidth();
+		_oDepthFrameDimension.Height 	= (int)depth_frame_->getHeight();
 	}
 }
 
@@ -69,8 +69,8 @@ FrameDimension* OpenNIDepthSensor::GetColorFrameDimension() {
 
 void OpenNIDepthSensor::SetColorFrameDimension() {
 	if (color_frame_ != NULL) {
-		_oColorFrameDimension.Width 	= color_frame_->getWidth();
-		_oColorFrameDimension.Height 	= color_frame_->getHeight();
+		_oColorFrameDimension.Width 	= (int)color_frame_->getWidth();
+		_oColorFrameDimension.Height 	= (int)color_frame_->getHeight();
 	}
 }
 
