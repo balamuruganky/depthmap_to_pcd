@@ -68,11 +68,11 @@ void DepthCameraReader::Run() {
 }
 
 int main(int argc, char** argv) {
-/*
+
 	OpenNIDepthSensor oOpenNIDepthSensor;
 	DepthCameraReader oDepthCameraReaderOpenNI(&oOpenNIDepthSensor);
 	oDepthCameraReaderOpenNI.StartThread();
-*/
+
 	KinectV1Sensor oKinectV1Sensor;
 	DepthCameraReader oDepthCameraReaderKinectV1Sensor(&oKinectV1Sensor);
 	oDepthCameraReaderKinectV1Sensor.StartThread();
@@ -84,13 +84,13 @@ int main(int argc, char** argv) {
 	char c = getchar();
 
 	printf("Thread clean up begins...\n");
-/*
+
 	oOpenNIDepthSensor.StopThread();
 	oDepthCameraReaderOpenNI.StopThread();
 
 	oOpenNIDepthSensor.WaitForThreadToExit();
 	oDepthCameraReaderOpenNI.WaitForThreadToExit();
-*/	
+
 	oKinectV1Sensor.StopThread();
 	oDepthCameraReaderKinectV1Sensor.StopThread();
 

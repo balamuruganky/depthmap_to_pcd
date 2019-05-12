@@ -52,29 +52,26 @@ PCLUtils::PCLUtils(FrameDimension* pDepthFrameDimension, KinectV1Parameters* pKi
 }
 
 void PCLUtils::GeneratePCDFileUsingKinectV1Parameters() {
-	pcl::PointCloud<pcl::PointXYZRGB>::Ptr pointcloud (new pcl::PointCloud <pcl::PointXYZRGB>);
-	int DepthFrameWidth = _pDepthFrameDimension->Width;
-	int DepthFrameHeight = _pDepthFrameDimension->Height;
+	int DepthFrameWidth = (int)_pDepthFrameDimension->Width;
+	int DepthFrameHeight = (int)_pDepthFrameDimension->Height;
 	double RefPixSize = (double)_pKinectV1Parameters->RefPixelSize;
 	double RefDistance = (double)_pKinectV1Parameters->RefDistance;
-	double currDepth = 0.0, ptx = 0.0, pty = 0.0;
-	pointcloud->width = DepthFrameWidth;
-	pointcloud->height = DepthFrameHeight;
-	pointcloud->points.resize (DepthFrameHeight * DepthFrameWidth);
+	double currDepth = 0.0;
+	pcl::PointCloud<pcl::PointXYZRGB>::Ptr pointcloud = CreateEmptyPointCloud(DepthFrameHeight, DepthFrameWidth);
 	
 	unsigned depth_idx = 0;
-	for (unsigned v = 0; v < (int)DepthFrameHeight; ++v) {
-		for (unsigned u = 0; u < (int)DepthFrameWidth; ++u, ++depth_idx)  {
+	for (int v = 0; v < DepthFrameHeight; ++v) {
+		for (int u = 0; u < DepthFrameWidth; ++u, ++depth_idx)  {
 			pcl::PointXYZRGB& pt = pointcloud->points[depth_idx];
 			currDepth = _pDepthBuf[depth_idx];
-		    if (currDepth != 0) {
+		   if (currDepth != 0) {
 				double factor = 2 * RefPixSize * currDepth / RefDistance;
-				pt.x = (((int)u - (int)(DepthFrameWidth / 2)) * factor) * MM_TO_METERS;
-				pt.y = (((int)v - (int)(DepthFrameHeight /2)) * factor) * MM_TO_METERS;
-				pt.z = (currDepth * MM_TO_METERS);
+				pt.x = (double)((u - (DepthFrameWidth / 2)) * factor);
+				pt.y = (double)((v - (DepthFrameHeight /2)) * factor);
+				pt.z = (currDepth);
 			} else {
 		    	pt.x = pt.y = pt.z = std::numeric_limits<float>::quiet_NaN();
-		    }
+		   }
 
 			UpdateColorToPCD(pt, depth_idx);
 		}
@@ -84,14 +81,11 @@ void PCLUtils::GeneratePCDFileUsingKinectV1Parameters() {
 }
 
 void PCLUtils::GeneratePCDFileUsingFoVParams() {
-	pcl::PointCloud<pcl::PointXYZRGB>::Ptr pointcloud (new pcl::PointCloud <pcl::PointXYZRGB>);
 	int DepthFrameWidth = _pDepthFrameDimension->Width;
 	int DepthFrameHeight = _pDepthFrameDimension->Height;
 	float DepthHFoV = _pFOVParams->DepthHorizontalFOV;
 	float DepthVFoV = _pFOVParams->DepthVerticalFOV;
-	pointcloud->width = DepthFrameWidth;
-	pointcloud->height = DepthFrameHeight;
-	pointcloud->points.resize (DepthFrameHeight * DepthFrameWidth);
+	pcl::PointCloud<pcl::PointXYZRGB>::Ptr pointcloud = CreateEmptyPointCloud(DepthFrameHeight, DepthFrameWidth);
   
 	unsigned depth_idx = 0;
 	for (unsigned v = 0; v < DepthFrameHeight; ++v) {
@@ -127,17 +121,13 @@ void PCLUtils::GeneratePCDFileUsingFoVParams() {
 }
 
 void PCLUtils::GeneratePCDFileUsingIntrinsicParams() {
-	pcl::PointCloud<pcl::PointXYZRGB>::Ptr pointcloud (new pcl::PointCloud <pcl::PointXYZRGB>);
 	int DepthFrameWidth = _pDepthFrameDimension->Width;
 	int DepthFrameHeight = _pDepthFrameDimension->Height;
 	float Fx = _pIntrinsicParameters->Fx;
 	float Fy = _pIntrinsicParameters->Fy;
 	float Cx = _pIntrinsicParameters->Cx;
 	float Cy = _pIntrinsicParameters->Cy;
-
-	pointcloud->width = DepthFrameWidth;
-	pointcloud->height = DepthFrameHeight;
-	pointcloud->points.resize (DepthFrameHeight * DepthFrameWidth);
+	pcl::PointCloud<pcl::PointXYZRGB>::Ptr pointcloud = CreateEmptyPointCloud(DepthFrameHeight, DepthFrameWidth);
   
 	unsigned depth_idx = 0;
 	for (unsigned v = 0; v < DepthFrameHeight; ++v) {
@@ -156,6 +146,14 @@ void PCLUtils::GeneratePCDFileUsingIntrinsicParams() {
 	}
 
  	pcl::io::savePCDFile (Utils::PrepareUniqueFileName("pcd", "pcd"), *pointcloud);
+}
+
+pcl::PointCloud<pcl::PointXYZRGB>::Ptr PCLUtils::CreateEmptyPointCloud (int DepthFrameHeight, int DepthFrameWidth) {
+	pcl::PointCloud<pcl::PointXYZRGB>::Ptr pointcloud (new pcl::PointCloud <pcl::PointXYZRGB>);
+	pointcloud->width = DepthFrameWidth;
+	pointcloud->height = DepthFrameHeight;
+	pointcloud->points.resize (DepthFrameHeight * DepthFrameWidth);
+	return pointcloud;
 }
 
 void PCLUtils::UpdateColorToPCD(pcl::PointXYZRGB& pt, int depth_idx) {

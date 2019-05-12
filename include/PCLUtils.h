@@ -14,6 +14,7 @@ class PCLUtils {
 		PCLUtils(FrameDimension* pDepthFrameDimension, IntrinsicParameters* pIntrinsicParameters, DepthBuffer* pDepthBuf, ColorBuffer RGBValues);
 		PCLUtils(FrameDimension* pDepthFrameDimension, KinectV1Parameters* pKinectV1Parameters, DepthBuffer* pDepthBuf, ColorBuffer* pColorBuf = NULL);
 		PCLUtils(FrameDimension* pDepthFrameDimension, KinectV1Parameters* pKinectV1Parameters, DepthBuffer* pDepthBuf, ColorBuffer RGBValues);
+		pcl::PointCloud<pcl::PointXYZRGB>::Ptr CreateEmptyPointCloud (int DepthFrameHeight, int DepthFrameWidth);
 		void GeneratePCDFileUsingFoVParams();
 		void GeneratePCDFileUsingIntrinsicParams();
 		void GeneratePCDFileUsingKinectV1Parameters();
