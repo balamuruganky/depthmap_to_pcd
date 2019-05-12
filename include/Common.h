@@ -12,54 +12,38 @@ using namespace std;
 
 typedef uint16_t DepthBuffer;
 
-typedef struct {
-	uint8_t Red;
-	uint8_t Green;
-	uint8_t Blue;
+typedef struct
+{
+  uint8_t Red;
+  uint8_t Green;
+  uint8_t Blue;
 } ColorBuffer;
 
-enum CameraParametersType {
-	CAMERA_FOV_PARAMETERS,
-	CAMERA_INTRINSIC_PARAMETERS,
-	CAMERA_KINECTV1_PARAMETERS,
-	// Invalid parameter
-	CAMERA_PARAMETER_INVALID
-};
+typedef enum
+{
+  CAMERA_FOV_PARAMETERS,
+  CAMERA_INTRINSIC_PARAMETERS,
+  CAMERA_KINECTV1_PARAMETERS,
+  // Invalid parameter
+  CAMERA_PARAMETER_INVALID
+} CameraParametersType;
 
-typedef struct {
-	int Width;
-	int Height;
+typedef struct
+{
+  int Width;
+  int Height;
 } FrameDimension;
 
-typedef struct {
-	DepthBuffer* 	pDepthBuf;
-	FrameDimension*	pFrameDim;
+typedef struct
+{
+  DepthBuffer *pDepthBuf;
+  FrameDimension *pFrameDim;
 } DepthBufferInfo;
 
-typedef struct {
-	ColorBuffer* 	pColorBuf;
-	FrameDimension*	pFrameDim;
+typedef struct
+{
+  ColorBuffer *pColorBuf;
+  FrameDimension *pFrameDim;
 } ColorBufferInfo;
-
-typedef struct {
-	float DepthHorizontalFOV;
-	float DepthVerticalFOV;
-	float ColorHorizontalFOV;
-	float ColorVerticalFOV;
-} FOVParameters;
-
-typedef struct {
-	// Focal lengths
-	float Fx;
-	float Fy;
-	// Principle points
-	float Cx;
-	float Cy;
-} IntrinsicParameters;
-
-typedef struct {
-	float RefPixelSize;
-	float RefDistance;
-} KinectV1Parameters;
 
 #endif

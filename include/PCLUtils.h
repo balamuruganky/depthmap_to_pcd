@@ -5,29 +5,33 @@
 #include <pcl/point_types.h>
 
 #include "Common.h"
+#include "CameraParameters.h"
 
-class PCLUtils {
-	public:
-		PCLUtils(FrameDimension* pDepthFrameDimension, FOVParameters* pFOVParams, DepthBuffer* pDepthBuf, ColorBuffer* pColorBuf = NULL);
-		PCLUtils(FrameDimension* pDepthFrameDimension, FOVParameters* pFOVParams, DepthBuffer* pDepthBuf, ColorBuffer RGBValues);
-		PCLUtils(FrameDimension* pDepthFrameDimension, IntrinsicParameters* pIntrinsicParameters, DepthBuffer* pDepthBuf, ColorBuffer* pColorBuf = NULL);
-		PCLUtils(FrameDimension* pDepthFrameDimension, IntrinsicParameters* pIntrinsicParameters, DepthBuffer* pDepthBuf, ColorBuffer RGBValues);
-		PCLUtils(FrameDimension* pDepthFrameDimension, KinectV1Parameters* pKinectV1Parameters, DepthBuffer* pDepthBuf, ColorBuffer* pColorBuf = NULL);
-		PCLUtils(FrameDimension* pDepthFrameDimension, KinectV1Parameters* pKinectV1Parameters, DepthBuffer* pDepthBuf, ColorBuffer RGBValues);
-		pcl::PointCloud<pcl::PointXYZRGB>::Ptr CreateEmptyPointCloud (int DepthFrameHeight, int DepthFrameWidth);
-		void GeneratePCDFileUsingFoVParams();
-		void GeneratePCDFileUsingIntrinsicParams();
-		void GeneratePCDFileUsingKinectV1Parameters();
+class PCLUtils
+{
+public:
+  PCLUtils (DepthBufferInfo * pDepthBufInfo, ColorBufferInfo * pColorBufInfo,
+	    CameraParameters * pCameraParameters);
+  void SavePCD ();
 
-	private:
-		FrameDimension* 		_pDepthFrameDimension;
-		FOVParameters* 			_pFOVParams;
-		IntrinsicParameters*	_pIntrinsicParameters;
-		KinectV1Parameters*     _pKinectV1Parameters;
-		DepthBuffer* 			_pDepthBuf;
-		ColorBuffer* 			_pColorBuf;
-		ColorBuffer				_RGBValues;
-		void UpdateColorToPCD(pcl::PointXYZRGB& pt, int depth_idx);
+private:
+    DepthBufferInfo * _pDepthBufInfo;
+  ColorBufferInfo *_pColorBufInfo;
+  FOVParameters *_pFOVParams;
+  IntrinsicParameters *_pIntrinsicParameters;
+  KinectV1Parameters *_pKinectV1Parameters;
+  CameraParameters *_pCameraParameters;
+  ColorBuffer _RGBValues;
+  CameraParametersType _CameraParamType;
+  void UpdateColorToPCD (pcl::PointXYZRGB & pt, int depth_idx);
+  void SetPointCloudRGBValue (ColorBuffer oColorBuf);
+    pcl::PointCloud <
+    pcl::PointXYZRGB >::Ptr CreateEmptyPointCloud (int DepthFrameHeight,
+						   int DepthFrameWidth);
+  void GeneratePCDFileUsingFoVParams ();
+  void GeneratePCDFileUsingIntrinsicParams ();
+  void GeneratePCDFileUsingKinectV1Parameters ();
+
 };
 
 #endif //PCL_UTILS_H

@@ -45,22 +45,10 @@ void DepthCameraReader::Run() {
 				break;
 			}
 
+			PCLUtils oPCLUtils(&_oDepthBufferInfo, &_oColorBufferInfo, _pDepthSensorBuilder->GetCameraParameters());
+			oPCLUtils.SavePCD();
+
 			OpenCVUtils oOpenCVUtils(&_oDepthBufferInfo, &_oColorBufferInfo);
-			if (_pDepthSensorBuilder->GetCameraParameters()->GetCameraParameterType() == CAMERA_FOV_PARAMETERS) {
-				PCLUtils oPCLUtils(	_oDepthBufferInfo.pFrameDim, _pDepthSensorBuilder->GetCameraParameters()->GetFovParametersInstance(), 
-									_oDepthBufferInfo.pDepthBuf, _oColorBufferInfo.pColorBuf);
-				oPCLUtils.GeneratePCDFileUsingFoVParams();
-			} else if (_pDepthSensorBuilder->GetCameraParameters()->GetCameraParameterType() == CAMERA_INTRINSIC_PARAMETERS) {
-				PCLUtils oPCLUtils(	_oDepthBufferInfo.pFrameDim, _pDepthSensorBuilder->GetCameraParameters()->GetIntrinsicParametersInstance(), 
-									_oDepthBufferInfo.pDepthBuf, _oColorBufferInfo.pColorBuf);
-				oPCLUtils.GeneratePCDFileUsingIntrinsicParams();
-			} else if (_pDepthSensorBuilder->GetCameraParameters()->GetCameraParameterType() == CAMERA_KINECTV1_PARAMETERS) {
-				PCLUtils oPCLUtils(	_oDepthBufferInfo.pFrameDim, _pDepthSensorBuilder->GetCameraParameters()->GetKinectV1ParametersInstance(), 
-									_oDepthBufferInfo.pDepthBuf, _oColorBufferInfo.pColorBuf);
-				oPCLUtils.GeneratePCDFileUsingKinectV1Parameters();
-			} else {
-				printf ("ERROR : Invalid Camera parameters. Unable to create PCD file.\n");
-			}
 			oOpenCVUtils.StoreDepthBufferAsImage(Utils::PrepareUniqueFileName("png", "png"));
 			oOpenCVUtils.StoreColorBufferAsImage(Utils::PrepareUniqueFileName("jpg", "jpg"));
 		}
@@ -80,7 +68,9 @@ int main(int argc, char** argv) {
 	//
 	// Call blocking API here...
 	//
-	printf ("Press any key to quit the application...\n");
+	printf ("#######################################################\n");
+	printf ("######## Press any key to quit the application ########\n");
+	printf ("#######################################################\n");
 	char c = getchar();
 
 	printf("Thread clean up begins...\n");

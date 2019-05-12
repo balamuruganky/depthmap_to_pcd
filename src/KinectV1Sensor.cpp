@@ -109,8 +109,8 @@ CameraParameters* KinectV1Sensor::GetCameraParameters() {
 
 void KinectV1Sensor::SetCameraParameters() {
 	freenect_registration regst = freenect_copy_registration(_pDevice);
-	_pKinectV1Params->RefPixelSize = regst.zero_plane_info.reference_pixel_size;
-	_pKinectV1Params->RefDistance  = regst.zero_plane_info.reference_distance;
+	_pKinectV1Params->SetRefPixelSize(regst.zero_plane_info.reference_pixel_size);
+	_pKinectV1Params->SetRefDistance(regst.zero_plane_info.reference_distance);
     _pCameraParams->SetKinectV1ParametersInstance(_pKinectV1Params);
 }
 

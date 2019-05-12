@@ -87,10 +87,10 @@ ColorBuffer* OpenNIDepthSensor::GetColorBuffer() {
 }
 
 void OpenNIDepthSensor::SetCameraParams() {
-	_pFovParams->DepthHorizontalFOV 	= depth_stream_->getHorizontalFieldOfView();
-    _pFovParams->DepthVerticalFOV 		= depth_stream_->getVerticalFieldOfView();
-	_pFovParams->ColorHorizontalFOV 	= color_stream_->getHorizontalFieldOfView();
-    _pFovParams->ColorVerticalFOV 		= color_stream_->getVerticalFieldOfView();
+	_pFovParams->SetDepthHorizontalFOV(depth_stream_->getHorizontalFieldOfView());
+    _pFovParams->SetDepthVerticalFOV(depth_stream_->getVerticalFieldOfView());
+	_pFovParams->SetColorHorizontalFOV(color_stream_->getHorizontalFieldOfView());
+    _pFovParams->SetColorVerticalFOV(color_stream_->getVerticalFieldOfView());
     _pCameraParams->SetFovParametersInstance(_pFovParams);
 }
 

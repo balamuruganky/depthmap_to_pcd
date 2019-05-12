@@ -3,59 +3,55 @@
 
 #define MM_TO_METERS 0.001f
 
-PCLUtils::PCLUtils(FrameDimension* pDepthFrameDimension, FOVParameters* pFOVParams, DepthBuffer* pDepthBuf, ColorBuffer* pColorBuf) : 
-		_pDepthFrameDimension(NULL), _pFOVParams(NULL), _pDepthBuf(NULL), _pColorBuf(NULL), _RGBValues({0,0,0}) {
-	_pDepthFrameDimension = pDepthFrameDimension;
-	_pFOVParams = pFOVParams;
-	_pDepthBuf = pDepthBuf;
-	_pColorBuf = pColorBuf;
+PCLUtils::PCLUtils(DepthBufferInfo *pDepthBufInfo, ColorBufferInfo *pColorBufInfo, CameraParameters* pCameraParameters) : 
+		_pCameraParameters(NULL), _pDepthBufInfo(NULL), _pColorBufInfo(NULL), _RGBValues({0,255,0}) {
+	if (NULL != pCameraParameters) {
+		_CameraParamType = pCameraParameters->GetCameraParameterType();
+		switch (_CameraParamType) {
+			case CAMERA_FOV_PARAMETERS:
+				_pFOVParams = pCameraParameters->GetFovParametersInstance();
+				break;
+			case CAMERA_INTRINSIC_PARAMETERS:
+				_pIntrinsicParameters = pCameraParameters->GetIntrinsicParametersInstance();
+				break;
+			case CAMERA_KINECTV1_PARAMETERS:
+				_pKinectV1Parameters = pCameraParameters->GetKinectV1ParametersInstance();
+				break;
+			default:
+				printf ("Camera parameters not available!!!\n");
+		}
+	}
+	_pDepthBufInfo = pDepthBufInfo;
+	_pColorBufInfo = pColorBufInfo;
 }
 
-PCLUtils::PCLUtils(FrameDimension* pDepthFrameDimension, FOVParameters* pFOVParams, DepthBuffer* pDepthBuf, ColorBuffer RGBValues) :
-		_pDepthFrameDimension(NULL), _pFOVParams(NULL), _pDepthBuf(NULL), _pColorBuf(NULL), _RGBValues({0,0,0}) {
-	_pDepthFrameDimension = pDepthFrameDimension;
-	_pFOVParams = pFOVParams;
-	_pDepthBuf = pDepthBuf;
-	_RGBValues = RGBValues;
+void PCLUtils::SetPointCloudRGBValue(ColorBuffer oColorBuf) {
+	_RGBValues.Red 	= oColorBuf.Red;
+	_RGBValues.Green = oColorBuf.Green;
+	_RGBValues.Blue = oColorBuf.Blue;
 }
 
-PCLUtils::PCLUtils(FrameDimension* pDepthFrameDimension, IntrinsicParameters* pIntrinsicParameters, DepthBuffer* pDepthBuf, ColorBuffer* pColorBuf) : 
-		_pDepthFrameDimension(NULL), _pIntrinsicParameters(NULL), _pDepthBuf(NULL), _pColorBuf(NULL), _RGBValues({0,0,0}) {
-	_pDepthFrameDimension = pDepthFrameDimension;
-	_pIntrinsicParameters = pIntrinsicParameters;
-	_pDepthBuf = pDepthBuf;
-	_pColorBuf = pColorBuf;
-}
-
-PCLUtils::PCLUtils(FrameDimension* pDepthFrameDimension, IntrinsicParameters* pIntrinsicParameters, DepthBuffer* pDepthBuf, ColorBuffer RGBValues) :
-		_pDepthFrameDimension(NULL), _pIntrinsicParameters(NULL), _pDepthBuf(NULL), _pColorBuf(NULL), _RGBValues({0,0,0}) {
-	_pDepthFrameDimension = pDepthFrameDimension;
-	_pIntrinsicParameters = pIntrinsicParameters;
-	_pDepthBuf = pDepthBuf;
-	_RGBValues = RGBValues;
-}
-
-PCLUtils::PCLUtils(FrameDimension* pDepthFrameDimension, KinectV1Parameters* pKinectV1Parameters, DepthBuffer* pDepthBuf, ColorBuffer* pColorBuf) : 
-		_pDepthFrameDimension(NULL), _pKinectV1Parameters(NULL), _pDepthBuf(NULL), _pColorBuf(NULL), _RGBValues({0,0,0}) {
-	_pDepthFrameDimension = pDepthFrameDimension;
-	_pKinectV1Parameters = pKinectV1Parameters;
-	_pDepthBuf = pDepthBuf;
-	_pColorBuf = pColorBuf;
-}
-
-PCLUtils::PCLUtils(FrameDimension* pDepthFrameDimension, KinectV1Parameters* pKinectV1Parameters, DepthBuffer* pDepthBuf, ColorBuffer RGBValues) :
-		_pDepthFrameDimension(NULL), _pKinectV1Parameters(NULL), _pDepthBuf(NULL), _pColorBuf(NULL), _RGBValues({0,0,0}) {
-	_pDepthFrameDimension = pDepthFrameDimension;
-	_pKinectV1Parameters = pKinectV1Parameters;
-	_pDepthBuf = pDepthBuf;
-	_RGBValues = RGBValues;
+void PCLUtils::SavePCD() {
+	switch (_CameraParamType) {
+		case CAMERA_FOV_PARAMETERS:
+			GeneratePCDFileUsingFoVParams();
+			break;
+		case CAMERA_INTRINSIC_PARAMETERS:
+			GeneratePCDFileUsingIntrinsicParams();
+			break;
+		case CAMERA_KINECTV1_PARAMETERS:
+			GeneratePCDFileUsingKinectV1Parameters();
+			break;
+		default:
+			printf ("Camera parameters not available!!!\n");
+	}
 }
 
 void PCLUtils::GeneratePCDFileUsingKinectV1Parameters() {
-	int DepthFrameWidth = (int)_pDepthFrameDimension->Width;
-	int DepthFrameHeight = (int)_pDepthFrameDimension->Height;
-	double RefPixSize = (double)_pKinectV1Parameters->RefPixelSize;
-	double RefDistance = (double)_pKinectV1Parameters->RefDistance;
+	int DepthFrameWidth = (int)_pDepthBufInfo->pFrameDim->Width;
+	int DepthFrameHeight = (int)_pDepthBufInfo->pFrameDim->Height;
+	double RefPixSize = (double)_pKinectV1Parameters->GetRefPixelSize();
+	double RefDistance = (double)_pKinectV1Parameters->GetRefDistance();
 	double currDepth = 0.0;
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr pointcloud = CreateEmptyPointCloud(DepthFrameHeight, DepthFrameWidth);
 	
@@ -63,7 +59,7 @@ void PCLUtils::GeneratePCDFileUsingKinectV1Parameters() {
 	for (int v = 0; v < DepthFrameHeight; ++v) {
 		for (int u = 0; u < DepthFrameWidth; ++u, ++depth_idx)  {
 			pcl::PointXYZRGB& pt = pointcloud->points[depth_idx];
-			currDepth = _pDepthBuf[depth_idx];
+			currDepth = _pDepthBufInfo->pDepthBuf[depth_idx];
 		   if (currDepth != 0) {
 				double factor = 2 * RefPixSize * currDepth / RefDistance;
 				pt.x = (double)((u - (DepthFrameWidth / 2)) * factor);
@@ -81,17 +77,17 @@ void PCLUtils::GeneratePCDFileUsingKinectV1Parameters() {
 }
 
 void PCLUtils::GeneratePCDFileUsingFoVParams() {
-	int DepthFrameWidth = _pDepthFrameDimension->Width;
-	int DepthFrameHeight = _pDepthFrameDimension->Height;
-	float DepthHFoV = _pFOVParams->DepthHorizontalFOV;
-	float DepthVFoV = _pFOVParams->DepthVerticalFOV;
+	int DepthFrameWidth = _pDepthBufInfo->pFrameDim->Width;
+	int DepthFrameHeight = _pDepthBufInfo->pFrameDim->Height;
+	float DepthHFoV = _pFOVParams->GetDepthHorizontalFOV();
+	float DepthVFoV = _pFOVParams->GetDepthVerticalFOV();
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr pointcloud = CreateEmptyPointCloud(DepthFrameHeight, DepthFrameWidth);
   
 	unsigned depth_idx = 0;
 	for (unsigned v = 0; v < DepthFrameHeight; ++v) {
 		for (unsigned u = 0; u < DepthFrameWidth; ++u, ++depth_idx)  {
 			pcl::PointXYZRGB& pt = pointcloud->points[depth_idx];
-			pt.z = _pDepthBuf[depth_idx] * MM_TO_METERS;
+			pt.z = _pDepthBufInfo->pDepthBuf[depth_idx] * MM_TO_METERS;
 		    if (pt.z != 0) {
 				int r_i = depth_idx / (int)DepthFrameWidth;
 				int c_i = depth_idx % (int)DepthFrameWidth;
@@ -121,19 +117,19 @@ void PCLUtils::GeneratePCDFileUsingFoVParams() {
 }
 
 void PCLUtils::GeneratePCDFileUsingIntrinsicParams() {
-	int DepthFrameWidth = _pDepthFrameDimension->Width;
-	int DepthFrameHeight = _pDepthFrameDimension->Height;
-	float Fx = _pIntrinsicParameters->Fx;
-	float Fy = _pIntrinsicParameters->Fy;
-	float Cx = _pIntrinsicParameters->Cx;
-	float Cy = _pIntrinsicParameters->Cy;
+	int DepthFrameWidth = _pDepthBufInfo->pFrameDim->Width;
+	int DepthFrameHeight = _pDepthBufInfo->pFrameDim->Height;
+	float Fx = _pIntrinsicParameters->GetFx();
+	float Fy = _pIntrinsicParameters->GetFy();
+	float Cx = _pIntrinsicParameters->GetCx();
+	float Cy = _pIntrinsicParameters->GetCy();
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr pointcloud = CreateEmptyPointCloud(DepthFrameHeight, DepthFrameWidth);
   
 	unsigned depth_idx = 0;
 	for (unsigned v = 0; v < DepthFrameHeight; ++v) {
 		for (unsigned u = 0; u < DepthFrameWidth; ++u, ++depth_idx)  {
 		    pcl::PointXYZRGB& pt = pointcloud->points[depth_idx];
-		    pt.z = _pDepthBuf[depth_idx] * MM_TO_METERS;
+		    pt.z = _pDepthBufInfo->pDepthBuf[depth_idx] * MM_TO_METERS;
 		    if (pt.z != 0) {	             
 				pt.x = pt.z * ((u - Cx) * Fx);
 				pt.y = pt.z * ((v - Cy) * Fy);
@@ -160,19 +156,14 @@ void PCLUtils::UpdateColorToPCD(pcl::PointXYZRGB& pt, int depth_idx) {
 	//
 	// Assign colour values
 	//
-	if (_pColorBuf != NULL) {
-		pt.r = _pColorBuf[depth_idx].Red;
-		pt.g = _pColorBuf[depth_idx].Green;
-		pt.b = _pColorBuf[depth_idx].Blue;
-		//printf ("%d %d %d\n", pt.r, pt.g, pt.b);
+	if (_pColorBufInfo->pColorBuf != NULL) {
+		pt.r = _pColorBufInfo->pColorBuf[depth_idx].Red;
+		pt.g = _pColorBufInfo->pColorBuf[depth_idx].Green;
+		pt.b = _pColorBufInfo->pColorBuf[depth_idx].Blue;
 	} else {
-		if (_RGBValues.Red != 0 && _RGBValues.Green != 0 && _RGBValues.Blue != 0) {
-			pt.r = _RGBValues.Red;
-			pt.g = _RGBValues.Green;
-			pt.b = _RGBValues.Blue;
-		} else {
-			pt.r = pt.g = pt.b = 255;
-		}
+		pt.r = _RGBValues.Red;
+		pt.g = _RGBValues.Green;
+		pt.b = _RGBValues.Blue;
 	}
 }
 
