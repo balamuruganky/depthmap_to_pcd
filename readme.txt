@@ -1,4 +1,4 @@
-This program is to demonstrate the depth map to PCD file conversion and storing depthmap, RGB and PCD file in the disk
+This program is to demonstrate the depth map to PCD file conversion and storing depthmap, color image and PCD file to the disk
 
 To compile:
 ===========
