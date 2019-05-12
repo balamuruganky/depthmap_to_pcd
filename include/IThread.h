@@ -9,7 +9,7 @@ class IThread
 public:
   virtual ~ IThread ()
   {
-    pthread_exit(NULL);
+    //pthread_exit(NULL);
   }
 
   bool StartThread ()
