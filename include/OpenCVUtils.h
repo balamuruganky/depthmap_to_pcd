@@ -1,6 +1,7 @@
 #ifndef OPENCV_UTILS_H
 #define OPENCV_UTILS_H
 
+#include <opencv2/opencv.hpp>
 #include "Common.h"
 
 class OpenCVUtils
@@ -17,7 +18,7 @@ public:
 					       ColorBufferInfo = NULL);
 
 private:
-    DepthBufferInfo * _pDepthBufInfo;
+  DepthBufferInfo * _pDepthBufInfo;
   ColorBufferInfo *_pColorBufInfo;
   ColorBuffer *_pColorBGRBuf;
   bool IsColorBufferAvailable ()
@@ -26,6 +27,7 @@ private:
   }
   void StoreOrShowDepthBuffer (char *FileNameWithPath);
   void StoreOrShowColorBuffer (char *FileNameWithPath);
+  void ShowOrStoreMat(cv::Mat mat, char* FileNameWithPath);
 };
 
 #endif //OPENCV_UTILS_H

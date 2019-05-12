@@ -1,4 +1,3 @@
-#include <opencv2/opencv.hpp>
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -39,7 +38,7 @@ ColorBuffer* OpenCVUtils::ConvertColorBufferFromRGBtoBGR(ColorBufferInfo* pColor
 	} else {
 		printf ("No colour buffer available!!!");
 	}
-	
+
 	return _pColorBGRBuf;
 }
 
@@ -49,11 +48,7 @@ void OpenCVUtils::StoreOrShowColorBuffer(char* FileNameWithPath) {
 	   	cv::Mat color_mat(_pColorBufInfo->pFrameDim->Height, _pColorBufInfo->pFrameDim->Width, CV_8UC3, _pColorBufInfo->pColorBuf);
 	    // Convert to BGR format for OpenCV
 	    cv::cvtColor(color_mat, color_mat, CV_RGB2BGR);
-	    if (NULL != FileNameWithPath) {
-	    	cv::imwrite(FileNameWithPath, color_mat);
-	    } else {
-	    	cv::imshow("Color", color_mat);
-		}
+		ShowOrStoreMat(color_mat, FileNameWithPath);
 	}
 }
 
@@ -61,10 +56,14 @@ void OpenCVUtils::StoreOrShowDepthBuffer(char* FileNameWithPath) {
 	// Copy frame data to OpenCV mat
     cv::Mat depth_mat(_pDepthBufInfo->pFrameDim->Height, _pDepthBufInfo->pFrameDim->Width, CV_16U, _pDepthBufInfo->pDepthBuf);
     cv::cvtColor(depth_mat, depth_mat, CV_GRAY2BGR);
-    if (NULL != FileNameWithPath) {
-    	cv::imwrite(FileNameWithPath, depth_mat);
-    } else {
-    	cv::imshow("Color", depth_mat);
+	ShowOrStoreMat(depth_mat, FileNameWithPath);
+}
+
+void OpenCVUtils::ShowOrStoreMat(cv::Mat mat, char* FileNameWithPath) {
+	if (NULL != FileNameWithPath) {
+		cv::imwrite(FileNameWithPath, mat);
+	} else {
+		cv::imshow(FileNameWithPath, mat);
 	}
 }
 
