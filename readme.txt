@@ -12,6 +12,3 @@ To run, first connect the Primensense camera and then run:
 ==========================================================
 $ cd bin
 $ ./depthmap_to_pcd
-
-
-Please note, this project is under development.
