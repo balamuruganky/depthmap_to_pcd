@@ -1,6 +1,6 @@
 # Depthmap to Point Cloud 
 
-This project is to interact with 3d camera which supported by openni and Kinect to extract RGB point cloud (PCD) buffer/file from the depth map. 
+This project is to interact with 3d camera which is supported by OPENNI library and Kinect which is supported by FREENECT library to extract RGB point cloud (PCD) buffer/file from the depth map. 
 Further computer vision algorithms can be applied in PCD files.
 
 ## How to compile
