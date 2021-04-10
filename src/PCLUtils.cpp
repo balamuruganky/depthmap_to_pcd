@@ -130,9 +130,9 @@ void PCLUtils::GeneratePCDFileUsingIntrinsicParams() {
 		for (unsigned u = 0; u < DepthFrameWidth; ++u, ++depth_idx)  {
 		    pcl::PointXYZRGB& pt = pointcloud->points[depth_idx];
 		    pt.z = _pDepthBufInfo->pDepthBuf[depth_idx] * MM_TO_METERS;
-		    if (pt.z != 0) {	             
-				pt.x = pt.z * ((u - Cx) * Fx);
-				pt.y = pt.z * ((v - Cy) * Fy);
+		    if (pt.z != 0.0f && Fx != 0.0f && Fy != 0.0f) {	             
+				pt.x = pt.z * ((Cx - u) / Fx);
+				pt.y = pt.z * ((Cy - v) / Fy);
 		    } else {
 		    	pt.x = pt.y = pt.z = std::numeric_limits<float>::quiet_NaN();
 		    }
